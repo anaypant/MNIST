@@ -1,3 +1,4 @@
+import sys
 import pygame
 import win32api
 import pickle
@@ -34,7 +35,6 @@ non_flattened_X_train = np.array(non_flattened_X_train)
 
 # This is more interesting
 pygame.init()
-
 with open("W1.bin", "rb") as f:
     W1 = pickle.load(f)
 with open("W2.bin", "rb") as g:
@@ -69,7 +69,7 @@ for curr_num in range(10):
             samps[curr_num].append(non_flattened_X_train[counter])
         counter += 1
 
-CELL_W = 10
+CELL_W = 15
 screen = pygame.display.set_mode((28 * CELL_W, 28 * CELL_W))
 grid = []
 for i in range(28):
@@ -81,15 +81,28 @@ clock = pygame.time.Clock()
 while True:
     screen.fill((0, 0, 0))
     for event in pygame.event.get():
-        if event.type == pygame.MOUSEMOTION and win32api.GetKeyState(0x01) < 0:
-            mX, mY = pygame.mouse.get_pos()
-            i = mY//CELL_W
-            j = mX//CELL_W
-            grid[i][j] += random.uniform(0.2, 0.6)
-            grid[i][j] = min(1.0, grid[i][j])
+        if event.type == pygame.QUIT:
+            sys.exit()
+    if win32api.GetKeyState(0x01) < 0:
+        mX, mY = pygame.mouse.get_pos()
+        i = mY//CELL_W
+        j = mX//CELL_W
+        grid[i][j] += random.uniform(0.2, 0.6)
+        grid[i][j] = min(1.0, grid[i][j])
+        if i >= 1:
+            grid[i-1][j] += random.uniform(0.05, 0.2)
+            grid[i-1][j] = min(1.0, grid[i-1][j])
+        if (i < 27):
+            grid[i+1][j] += random.uniform(0.05, 0.2)
+            grid[i+1][j] = min(1.0, grid[i+1][j])
+        if j >= 1:
+            grid[i][j-1] += random.uniform(0.05, 0.2)
+            grid[i][j-1] = min(1.0, grid[i][j-1])
+        if (j < 27):
+            grid[i][j+1] += random.uniform(0.05, 0.2)
+            grid[i][j+1] = min(1.0, grid[i][j+1])
 
-            newGrid = np.array(grid, copy=True).flatten()
-
+        newGrid = np.array(grid, copy=True).flatten()
     if (keyboard.is_pressed("1")):
         # get a random sample of 1 and draw it
         # copy samps[1] to crid
@@ -155,7 +168,7 @@ while True:
     a1 = tanh(z1)
     z2 = a1.dot(W2)
     a2 = softmax(z2)
-    pygame.display.set_caption(str(np.argmax(a2)))
+    pygame.display.set_caption("I predict:  " + str(np.argmax(a2)))
     if (keyboard.is_pressed("c")):
         grid = []
         for i in range(28):
@@ -169,4 +182,4 @@ while True:
             pygame.draw.rect(screen, (grid[i][j] * 255.0, grid[i][j] * 255.0,
                              grid[i][j] * 255.0), [j*CELL_W, i*CELL_W, CELL_W, CELL_W])
     pygame.display.update()
-    clock.tick(30)
+    clock.tick(60)

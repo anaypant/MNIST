@@ -56,11 +56,11 @@ def softmax(x):
     return e_x / np.sum(e_x, axis=1, keepdims=True)
 
 
-num_epochs = 5000
+num_epochs = 10000
 
 W1 = np.random.randn(input_node_size, hidden_node_size)
 W2 = np.random.randn(hidden_node_size, output_node_size)
-BS = 1000
+BS = 2500
 lr = 1e-3
 
 
@@ -75,7 +75,7 @@ for epoch in (t := trange(num_epochs)):
     a2 = softmax(z2)
 
     loss = -np.mean(np.sum(Y * np.log(a2+1e-20), axis=1))
-    t.set_description(str(np.round(loss, 5)))
+    t.set_description("Loss: " + str(np.round(loss, 5)))
 
     dz2 = a2 - Y
     dw2 = a1.T.dot(dz2)
